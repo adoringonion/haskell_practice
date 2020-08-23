@@ -1,2 +1,4 @@
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = do
+    runTestTT $ "Test1" ~: 1 + 1 ~?= 2
+    return()
