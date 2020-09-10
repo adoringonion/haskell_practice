@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 import Test.HUnit
 import Data.Hjq as Hjq
 import Data.Hjq.Parser
