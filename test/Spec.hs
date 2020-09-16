@@ -54,8 +54,17 @@ applyFilterTest = TestList
   [
     "applyFilter test 1" ~: applyFilter (unsafeParseFilter ".") testData ~?= Right testData
   , "applyFilter test 2" ~: (Just $ applyFilter (unsafeParseFilter ".string-field") testData)
-    ~?= fmap Right (testData^?key "string-field")
+    ~?= fmap Right (testData ^? key "string-field")
   , "applyFilter test 3" ~: (Just $ applyFilter (unsafeParseFilter ".nested-field.inner-string") testData)
+    ~?= fmap Right (testData ^? key "nested-field" . key "inner-string")
+  , "applyFilter test 4" ~: (Just $ applyFilter (unsafeParseFilter ".nested-field.inner-number") testData)
+    ~?= fmap Right (testData ^? key "nested-field" . key "inner-number")
+  , "applyFilter test 5" ~: (Just $ applyFilter (unsafeParseFilter ".array-field[0]") testData)
+    ~?= fmap Right (testData ^? key "array-field" . nth 0)
+  , "applyFilter test 6" ~: (Just $ applyFilter (unsafeParseFilter ".array-field[1]") testData)
+    ~?= fmap Right (testData ^? key "array-field" . nth 1)
+  , "applyFilter test 7" ~: (Just $ applyFilter (unsafeParseFilter ".array-field[2].object-in-array") testData)
+    ~?= fmap Right (testData ^? key "array-field" . nth 2 . key "object-in-array")
   ]
 
 testData :: Value
@@ -74,3 +83,8 @@ testData = Object $ H.fromList
       ]
     )
   ]
+
+unsafeParseFilter :: Text -> JqFilter
+unsafeParseFilter t = case parseJqFilter r of
+  Right f -> f
+  Left s -> error $ "PARSE FAILURE IN A TEST" ++ unpack s
