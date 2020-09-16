@@ -48,3 +48,29 @@ jqQueryParserSpacesTest = TestList
     (JqField "piyo" JqNil)])
   , "jqQueryParser test 3" ~: parseJqQuery "{ \"hoge\" : [ ] , \"piyo\" : [ ] } " ~?= Right (JqQueryObject [("hoge", JqQueryArray []), ("piyo", JqQueryArray [])])
   ]
+
+applyFilterTest :: Test
+applyFilterTest = TestList
+  [
+    "applyFilter test 1" ~: applyFilter (unsafeParseFilter ".") testData ~?= Right testData
+  , "applyFilter test 2" ~: (Just $ applyFilter (unsafeParseFilter ".string-field") testData)
+    ~?= fmap Right (testData^?key "string-field")
+  , "applyFilter test 3" ~: (Just $ applyFilter (unsafeParseFilter ".nested-field.inner-string") testData)
+  ]
+
+testData :: Value
+testData = Object $ H.fromList
+  [ ("string-field", String "string value")
+  , ("nested-field", Object $ H.fromList
+      [ ("inner-string", String "inner value")
+      , ("inner-number", Number 100)
+      ]
+    )
+  , ("array-field", Array $ V.fromList
+      [ String "first field"
+      , String "next field"
+      , Object (H.fromList
+        [  ("object-in-array", String "string value in object-in-array")  ]  )
+      ]
+    )
+  ]
