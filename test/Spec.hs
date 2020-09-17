@@ -77,6 +77,17 @@ applyFilterTest = TestList
     ~?= fmap Right (testData ^? key "array-field" . nth 2 . key "object-in-array")
   ]
 
+executeQueryTest :: Test
+executeQueryTest = TestList
+  [
+    "executeQueryTest 1" ~: executeQuery (unsafeParseQuery "{}") testData ~?=
+      Right (Object $ H.fromList [])
+  , "executeQueryTest 2" ~: executeQuery (unsafeParseQuery "{ \"field1\": . , \"field2\": .string-field}") testData ~?=
+      Right (Object $ H.fromList [("field1", testData), ("field2", String "stringvalue")])
+  , "executeQueryTest 3" ~: executeQuery (unsafeParseQuery "[ .string-field, .nested-field.inner-string]") testData ~?=
+      Right (Array $ V.fromList [String "string value", String "inner value"])
+  ]
+
 testData :: Value
 testData = Object $ H.fromList
   [ ("string-field", String "string value")
@@ -96,5 +107,10 @@ testData = Object $ H.fromList
 
 unsafeParseFilter :: Text -> JqFilter
 unsafeParseFilter t = case parseJqFilter t of
+  Right f -> f
+  Left s -> error $ "PARSE FAILURE IN A TEST" ++ unpack s
+
+unsafeParseQuery :: Text -> JqQuery
+unsafeParseQuery t = case parseJqQuery t of
   Right f -> f
   Left s -> error $ "PARSE FAILURE IN A TEST" ++ unpack s
