@@ -1,12 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
-import Test.HUnit
 import Data.Hjq.Parser
 import Data.Hjq.Query
+import Test.HUnit
+
+import Control.Lens
+import Data.Monoid
 import Data.Text
+import qualified Data.Vector as V
+import qualified Data.HashMap.Strict as H
 import Data.Aeson
 import Data.Aeson.Lens
-import qualified Data.Vector as V
-import qualified Data.HashMap as H
 
 main :: IO ()
 main = do
@@ -92,6 +95,6 @@ testData = Object $ H.fromList
   ]
 
 unsafeParseFilter :: Text -> JqFilter
-unsafeParseFilter t = case parseJqFilter r of
+unsafeParseFilter t = case parseJqFilter t of
   Right f -> f
   Left s -> error $ "PARSE FAILURE IN A TEST" ++ unpack s
